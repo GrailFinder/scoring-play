@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
-import sklearn, os
+import sklearn
 from sklearn.preprocessing import scale, LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
 from sklearn.metrics import log_loss, mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
-from os import sys, path
+import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from base_func import fill_nans, make_prediction, roc_score, make_cats, base_reg_stack
 
