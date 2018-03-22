@@ -4,7 +4,10 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import scale, LabelEncoder
 from sklearn.model_selection import train_test_split, KFold
-from sklearn.metrics import roc_auc_score, log_loss, mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, roc_auc_score, log_loss, mean_squared_error, r2_score
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, GradientBoostingRegressor
+#from xgboost import XGBRegressor
+from vecstack import stacking
 
 def fill_nans(data):
     """Takes df and replace nan values with -999"""
@@ -41,3 +44,39 @@ def make_cats(df):
             df[col] = le.fit_transform(df[col].fillna('-999'))
             
     return df
+
+def base_reg_stack(x, y, x_test):
+    X_train, X_test, y_train, y_test = train_test_split(x, y, 
+    test_size = 0.2, random_state = 0)
+
+    # Caution! All models and parameter values are just 
+    # demonstrational and shouldn't be considered as recommended.
+    # Initialize 1st level models.
+    models = [
+        ExtraTreesRegressor(random_state = 0, n_jobs = -1, 
+            n_estimators = 100, max_depth = 3),
+            
+        RandomForestRegressor(random_state = 0, n_jobs = -1, 
+            n_estimators = 100, max_depth = 3),
+            
+        GradientBoostingRegressor(learning_rate = 0.1, 
+            n_estimators = 100, max_depth = 3)]
+    
+    # Compute stacking features
+    S_train, S_test = stacking(models, X_train, y_train, x_test, 
+        regression = True, metric = r2_score, n_folds = 4, 
+        shuffle = True, random_state = 0, verbose = 2)
+
+    # Initialize 2nd level model
+    model = GradientBoostingRegressor(learning_rate = 0.1, 
+        n_estimators = 100, max_depth = 3)
+    print("S_train shape:", S_train.shape)
+    # Fit 2nd level model
+    model = model.fit(S_train, y_train)
+
+    # Predict
+    y_pred = model.predict(S_test)
+
+    #print('Final prediction score: [%.8f]' % r2_score(y_test, y_pred))
+
+    return y_pred

@@ -8,8 +8,9 @@ from sklearn.metrics import log_loss, mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
 from os import sys, path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from base_func import fill_nans, make_prediction, roc_score, make_cats
+from base_func import fill_nans, make_prediction, roc_score, make_cats, base_reg_stack
 
+from matplotlib import pyplot as plt
 
 if __name__ == "__main__":
 
@@ -37,9 +38,13 @@ if __name__ == "__main__":
     X_test = make_cats(df_test)
     fill_nans(X_test)
     X_test = scale(X_test)
+    
+
+    y_pred = base_reg_stack(X, df_train[t_name], X_test)
     submission = pd.DataFrame({
         "Id": df_test.index,
-        t_name: clf.predict(X_test)
+        t_name: y_pred,
     })
 
-    submission.to_csv('rf.csv', index=False)
+    submission.to_csv('stacked_boost.csv', index=False)
+    
