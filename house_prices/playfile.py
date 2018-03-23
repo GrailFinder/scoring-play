@@ -5,15 +5,27 @@ from sklearn.preprocessing import scale, LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
 from sklearn.metrics import log_loss, mean_squared_error, r2_score
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, GradientBoostingRegressor
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from base_func import fill_nans, make_prediction, roc_score, make_cats, base_reg_stack
+from base_func import fill_nans, make_prediction, roc_score, make_cats, base_reg_stack, adv_reg_stack
 
 from matplotlib import pyplot as plt
-
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.linear_model import LinearRegression, Ridge
 
 if __name__ == "__main__":
+
+    models = [
+        RandomForestRegressor(),
+        ExtraTreesRegressor(),
+        GradientBoostingRegressor(),
+        KNeighborsRegressor(),
+        #LinearRegression(),
+        Ridge(),
+        #SVR(),
+    ]
 
 
     df_train = pd.DataFrame.from_csv("train.csv")
@@ -42,7 +54,13 @@ if __name__ == "__main__":
     X_test = scale(X_test)
     
 
-    y_pred = base_reg_stack(X, df_train[t_name], X_test)
+    # y_pred = base_reg_stack(X, df_train[t_name], X_test)
+    # submission = pd.DataFrame({
+    #     "Id": df_test.index,
+    #     t_name: y_pred,
+    # })
+
+    y_pred = adv_reg_stack(X, df_train[t_name], X_test, reg_models=models)
     submission = pd.DataFrame({
         "Id": df_test.index,
         t_name: y_pred,

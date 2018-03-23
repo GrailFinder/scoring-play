@@ -23,7 +23,6 @@ def percentile_based_outlier(data, threshold=95):
 
 def std_div(data, threshold=3):
     std = data.std()
-    mean = data.mean()
     isOutlier = []
     for val in data:
         if val/std > threshold:
