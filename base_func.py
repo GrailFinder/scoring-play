@@ -77,8 +77,6 @@ def base_reg_stack(x, y, x_test):
     # Predict
     y_pred = model.predict(S_test)
 
-    #print('Final prediction score: [%.8f]' % r2_score(y_test, y_pred))
-
     return y_pred
 
 
@@ -114,6 +112,42 @@ def base_clf_stack(x, y, x_test):
     # Predict
     y_pred = model.predict(S_test)
 
-    #print('Final prediction score: [%.8f]' % r2_score(y_test, y_pred))
+    return y_pred
 
+def adv_reg_stack(x, y, x_test, reg_models, metric=mean_absolute_error):
+    X_train, X_test, y_train, y_test = train_test_split(x, y, 
+    test_size = 0.2, random_state = 0)
+    
+    # Compute stacking features
+    S_train, S_test = stacking(reg_models, X_train, y_train, x_test, 
+        regression = True, metric = r2_score, n_folds = 4, 
+        shuffle = True, random_state = 0, verbose = 2)
+
+    # Initialize 2nd level model
+    model = GradientBoostingRegressor(learning_rate = 0.1, 
+        n_estimators = 100, max_depth = 3)
+    print("S_train shape:", S_train.shape)
+    # Fit 2nd level model
+    model = model.fit(S_train, y_train)
+    # Predict
+    y_pred = model.predict(S_test)
+    return y_pred
+
+def adv_clf_stack(x, y, x_test, clf_models, metric=mean_absolute_error):
+    X_train, X_test, y_train, y_test = train_test_split(x, y, 
+    test_size = 0.2, random_state = 0)
+    
+    # Compute stacking features
+    S_train, S_test = stacking(clf_models, X_train, y_train, x_test, 
+        regression = True, metric = r2_score, n_folds = 4, 
+        shuffle = True, random_state = 0, verbose = 2)
+
+    # Initialize 2nd level model
+    model = GradientBoostingClassifier(learning_rate = 0.1, 
+        n_estimators = 100, max_depth = 3)
+    print("S_train shape:", S_train.shape)
+    # Fit 2nd level model
+    model = model.fit(S_train, y_train)
+    # Predict
+    y_pred = model.predict(S_test)
     return y_pred
