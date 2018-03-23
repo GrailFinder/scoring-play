@@ -12,7 +12,9 @@ from base_func import fill_nans, make_prediction, roc_score, make_cats, base_reg
 
 from matplotlib import pyplot as plt
 
+
 if __name__ == "__main__":
+
 
     df_train = pd.DataFrame.from_csv("train.csv")
     df_test = pd.DataFrame.from_csv("test.csv")
