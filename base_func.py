@@ -9,10 +9,10 @@ from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, Gradien
 #from xgboost import XGBRegressor
 from vecstack import stacking
 
-def fill_nans(data):
-    """Takes df and replace nan values with -999"""
+def fill_nans(data, filler=-999):
+    """Takes df and replace nan values with filler value (-999 by default)"""
     for col in data.columns:
-        data[col].fillna(-999, inplace=True)
+        data[col].fillna(filler, inplace=True)
 
 
 def make_prediction(x_train, y_train, x_test, model):
@@ -120,7 +120,7 @@ def adv_reg_stack(x, y, x_test, reg_models, metric=mean_absolute_error):
     
     # Compute stacking features
     S_train, S_test = stacking(reg_models, X_train, y_train, x_test, 
-        regression = True, metric = r2_score, n_folds = 4, 
+        regression = True, metric=metric, n_folds = 4, 
         shuffle = True, random_state = 0, verbose = 2)
 
     # Initialize 2nd level model
@@ -139,7 +139,7 @@ def adv_clf_stack(x, y, x_test, clf_models, metric=mean_absolute_error):
     
     # Compute stacking features
     S_train, S_test = stacking(clf_models, X_train, y_train, x_test, 
-        regression = True, metric = r2_score, n_folds = 4, 
+        regression = True, metric=metric, n_folds = 4, 
         shuffle = True, random_state = 0, verbose = 2)
 
     # Initialize 2nd level model
