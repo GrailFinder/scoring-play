@@ -96,7 +96,7 @@ def replace_outlier(data, method = outlier_vote, replace='median'):
     '''replace: median (auto)
                 'minUpper' which is the upper bound of the outlier detection'''
     vote = outlier_vote(data)
-    x = pd.DataFrame(zip(data, vote), columns=['debt', 'outlier'])
+    x = pd.DataFrame(list(zip(data, vote)), columns=['debt', 'outlier'])
     if replace == 'median':
         replace = x.debt.median()
     elif replace == 'minUpper':
@@ -111,3 +111,8 @@ def replace_outlier(data, method = outlier_vote, replace='median'):
             debtNew.append(x.iloc[i][0])
     
     return debtNew
+
+def replace_outliers(df, method=outlier_vote, replace='median'):
+    for col in df.columns:
+        df[col] = replace_outlier(df[col], method=outlier_vote, replace=replace)
+    return df
