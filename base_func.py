@@ -9,9 +9,11 @@ from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, Gradien
 #from xgboost import XGBRegressor
 from vecstack import stacking
 
-def fill_nans(data, filler=-999):
-    """Takes df and replace nan values with filler value (-999 by default)"""
+def fill_nans(data, med=False, filler=-999):
+    """Takes df and replace nan values with filler value (-999 by default), but if med value set to True, nans will be replaced with median value"""
     for col in data.columns:
+        if med:
+            filler = data[col].median()
         data[col].fillna(filler, inplace=True)
 
 

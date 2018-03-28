@@ -11,7 +11,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from base_func import fill_nans, make_prediction, roc_score, make_cats, base_reg_stack, adv_reg_stack
 
 from matplotlib import pyplot as plt
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import LinearRegression, Ridge
 
