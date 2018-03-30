@@ -43,7 +43,7 @@ def make_cats(df):
     le = LabelEncoder()
     for col in df.columns:
         if df[col].dtype == "object":
-            df[col] = le.fit_transform(df[col].fillna('-999'))
+            df[col] = le.fit_transform(df[col].fillna('nan'))
             
     return df
 
