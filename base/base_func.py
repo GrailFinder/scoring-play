@@ -23,10 +23,10 @@ def make_prediction(x_train, y_train, x_test, model):
     y_predict = model.predict(x_test)
     return y_predict
 
-def roc_score(x, y, model):
+def roc_score(x, y, model, n_splits=5):
     """Estimates the area under ROC curve of a model."""
     # We use k-fold cross-validation and average the scores.
-    kfold = KFold(n_splits=5)
+    kfold = KFold(n_splits)
     scores = []
     for train_index, test_index in kfold.split(x):
         x_train = x[train_index]
@@ -44,33 +44,33 @@ def make_cats(df):
     for col in df.columns:
         if df[col].dtype == "object":
             df[col] = le.fit_transform(df[col].fillna('nan'))
-            
+
     return df
 
 def base_reg_stack(x, y, x_test):
-    X_train, X_test, y_train, y_test = train_test_split(x, y, 
+    X_train, X_test, y_train, y_test = train_test_split(x, y,
     test_size = 0.2, random_state = 0)
 
-    # Caution! All models and parameter values are just 
+    # Caution! All models and parameter values are just
     # demonstrational and shouldn't be considered as recommended.
     # Initialize 1st level models.
     models = [
-        ExtraTreesRegressor(random_state = 0, n_jobs = -1, 
+        ExtraTreesRegressor(random_state = 0, n_jobs = -1,
             n_estimators = 100, max_depth = 3),
-            
-        RandomForestRegressor(random_state = 0, n_jobs = -1, 
+
+        RandomForestRegressor(random_state = 0, n_jobs = -1,
             n_estimators = 100, max_depth = 3),
-            
-        GradientBoostingRegressor(learning_rate = 0.1, 
+
+        GradientBoostingRegressor(learning_rate = 0.1,
             n_estimators = 100, max_depth = 3)]
-    
+
     # Compute stacking features
-    S_train, S_test = stacking(models, X_train, y_train, x_test, 
-        regression = True, metric = r2_score, n_folds = 4, 
+    S_train, S_test = stacking(models, X_train, y_train, x_test,
+        regression = True, metric = r2_score, n_folds = 4,
         shuffle = True, random_state = 0, verbose = 2)
 
     # Initialize 2nd level model
-    model = GradientBoostingRegressor(learning_rate = 0.1, 
+    model = GradientBoostingRegressor(learning_rate = 0.1,
         n_estimators = 100, max_depth = 3)
     print("S_train shape:", S_train.shape)
     # Fit 2nd level model
@@ -83,29 +83,29 @@ def base_reg_stack(x, y, x_test):
 
 
 def base_clf_stack(x, y, x_test):
-    X_train, X_test, y_train, y_test = train_test_split(x, y, 
+    X_train, X_test, y_train, y_test = train_test_split(x, y,
     test_size = 0.2, random_state = 0)
 
-    # Caution! All models and parameter values are just 
+    # Caution! All models and parameter values are just
     # demonstrational and shouldn't be considered as recommended.
     # Initialize 1st level models.
     models = [
-        ExtraTreesClassifier(random_state = 0, n_jobs = -1, 
+        ExtraTreesClassifier(random_state = 0, n_jobs = -1,
             n_estimators = 100, max_depth = 3),
-            
-        RandomForestClassifier(random_state = 0, n_jobs = -1, 
+
+        RandomForestClassifier(random_state = 0, n_jobs = -1,
             n_estimators = 100, max_depth = 3),
-            
-        GradientBoostingClassifier(learning_rate = 0.1, 
+
+        GradientBoostingClassifier(learning_rate = 0.1,
             n_estimators = 100, max_depth = 3)]
-    
+
     # Compute stacking features
-    S_train, S_test = stacking(models, X_train, y_train, x_test, 
-        regression = True, metric = r2_score, n_folds = 4, 
+    S_train, S_test = stacking(models, X_train, y_train, x_test,
+        regression = True, metric = r2_score, n_folds = 4,
         shuffle = True, random_state = 0, verbose = 2)
 
     # Initialize 2nd level model
-    model = GradientBoostingClassifier(learning_rate = 0.1, 
+    model = GradientBoostingClassifier(learning_rate = 0.1,
         n_estimators = 100, max_depth = 3)
     print("S_train shape:", S_train.shape)
     # Fit 2nd level model
@@ -117,16 +117,16 @@ def base_clf_stack(x, y, x_test):
     return y_pred
 
 def adv_reg_stack(x, y, x_test, reg_models, metric=mean_absolute_error):
-    X_train, X_test, y_train, y_test = train_test_split(x, y, 
+    X_train, X_test, y_train, y_test = train_test_split(x, y,
     test_size = 0.2, random_state = 0)
-    
+
     # Compute stacking features
-    S_train, S_test = stacking(reg_models, X_train, y_train, x_test, 
-        regression = True, metric=metric, n_folds = 4, 
+    S_train, S_test = stacking(reg_models, X_train, y_train, x_test,
+        regression = True, metric=metric, n_folds = 4,
         shuffle = True, random_state = 0, verbose = 2)
 
     # Initialize 2nd level model
-    model = GradientBoostingRegressor(learning_rate = 0.1, 
+    model = GradientBoostingRegressor(learning_rate = 0.1,
         n_estimators = 100, max_depth = 3)
     print("S_train shape:", S_train.shape)
     # Fit 2nd level model
@@ -136,16 +136,16 @@ def adv_reg_stack(x, y, x_test, reg_models, metric=mean_absolute_error):
     return y_pred
 
 def adv_clf_stack(x, y, x_test, clf_models, metric=mean_absolute_error):
-    X_train, X_test, y_train, y_test = train_test_split(x, y, 
+    X_train, X_test, y_train, y_test = train_test_split(x, y,
     test_size = 0.2, random_state = 0)
-    
+
     # Compute stacking features
-    S_train, S_test = stacking(clf_models, X_train, y_train, x_test, 
-        regression = True, metric=metric, n_folds = 4, 
+    S_train, S_test = stacking(clf_models, X_train, y_train, x_test,
+        regression = True, metric=metric, n_folds = 4,
         shuffle = True, random_state = 0, verbose = 2)
 
     # Initialize 2nd level model
-    model = GradientBoostingClassifier(learning_rate = 0.1, 
+    model = GradientBoostingClassifier(learning_rate = 0.1,
         n_estimators = 100, max_depth = 3)
     print("S_train shape:", S_train.shape)
     # Fit 2nd level model
